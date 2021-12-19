@@ -111,15 +111,38 @@ def split_furigana(text):
     return ret
 
 
-def print_html(text):
-    for pair in split_furigana(text):
-        if len(pair)==2:
-            kanji,hira = pair
-            print("<ruby><rb>{0}</rb><rt>{1}</rt></ruby>".
-                    format(kanji, hira), end='')
+def parse_string(line):
+    ret = []
+    cur = ''
+    for ch in line:
+        if not cur:
+            cur = ch
         else:
-            print(pair[0], end='')
-    print('')
+            if (cur.isspace() ^ ch.isspace()):
+                ret += [cur]
+                cur = ch
+            else:
+                cur += ch
+    return ret
+
+def print_html(line):
+    for text in parse_string(line):
+        if (text.isspace()):
+#             if (len(text)>1):
+#                 print(re.sub('', "&emsp;", text), end='')
+#             else:
+#                 print("&nbsp;", end='')
+#print(re.sub('', "&emsp;", text), end='')
+             print(text, end='')
+             continue
+        for pair in split_furigana(text):
+            if len(pair)==2:
+                kanji,hira = pair
+                print("<ruby><rb>{0}</rb><rt>{1}</rt></ruby>".
+                        format(kanji, hira), end='')
+            else:
+                print(pair[0], end='')
+    print('<br>')
 
 
 def print_plaintext(text):
@@ -133,9 +156,13 @@ def print_plaintext(text):
 
 
 def main():
-    text = sys.argv[1]
-    print_html(text)
-
+    lines = []
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            break
+#print(line,end='')
+        print_html(line)
 
 if __name__ == '__main__':
     main()
